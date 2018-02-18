@@ -33,4 +33,15 @@ impl Chip8 {
             self.cpu.ram.write_byte(i + 512, byte);
         }
     }
+
+    pub fn start(&mut self) {
+        loop {
+            //Emulate one cycle
+            self.step();
+
+            //TODO:
+            //draw flag
+            //input keys
+        }
+    }
 }

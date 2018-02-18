@@ -31,13 +31,5 @@ fn main() {
 
     chip8.load(rom);
 
-    //Start emulating!
-    loop {
-        //Emulate one cycle
-        chip8.step();
-
-        //TODO:
-        //draw flag
-        //input keys
-    }
+    chip8.start();
 }
