@@ -35,6 +35,7 @@ impl Chip8 {
     }
 
     pub fn start(&mut self) {
+        //for i in 0..140
         loop {
             //Emulate one cycle
             self.step();
