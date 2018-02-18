@@ -61,15 +61,20 @@ impl Cpu {
             0x0 => {
                 match self.op & 0x000F {
                     0x0000 => {
-                        println!("Instr: 00E0"); //CLS
+                        //00E0 - CLS
+                        //Clear the Display.
+                        println!("Instr: 00E0"); 
                         //TODO: Clear screen.
                     },
                     0x000E => {
-                        println!("Instr: 00EE"); //RET
+                        //00EE - RET
+                        //Return from a subroutine.
+                        println!("Instr: 00EE");
                         self.pc = self.stack.pop().unwrap();
                         self.sp -= 1;
                     },
                     _ => {
+                        //Should never happen, because only 2 0x0 instructions exist.
                         println!("Unknown 0x0 instruction: {}! Exiting program...", instr);
                         std::process::exit(1);
                     }
@@ -77,35 +82,50 @@ impl Cpu {
                 
             },
             0x1000 => {
-                println!("Instr: 1NNN");
+                //1nnn - JP addr
+                //Jump to location nnn.
+                println!("Instr: 1nnn");
                 self.pc = nnn;
             },
             0x2000 => {
-                println!("Instr: 2NNN");
+                //2nnn - CALL addr
+                //Call subroutine at nnn.
+                println!("Instr: 2nnn");
                 self.sp += 1;
                 self.stack.push(self.pc);
                 self.pc = nnn;
             },
             0x3000 => {
-                println!("Instr: 3XKK");
+                //3xkk - SE Vx, kk
+                //Skip next instruction if Vx == kk.
+                println!("Instr: 3xkk");
                 println!("VX: {}, KK: {}", self.V[x], kk);
 
                 if self.V[x] == kk { self.pc += 2; }
             },
             0x6000 => {
-                println!("Instr: 6XKK"); //LD Vx, byte
+                //6xkk - LD Vx, kk
+                //Set Vx = kk.
+                println!("Instr: 6xkk");
                 self.V[x] = kk;
             },
             0x7000 => {
-                println!("Instr: 7XKK"); //ADD Vx, byte
+                //7xkk - ADD Vx, byte
+                //Adds value kk to value in register Vx.
+                println!("Instr: 7xkk");
                 self.V[x] = self.V[x].wrapping_add(kk);
             },
             0xA000 => {
-                println!("Instr: ANNN");
+                //Annn - LD I, addr
+                //The value of register I is set to nnn.
+                println!("Instr: Annn");
                 self.i = nnn;
             },
             0xD000 => {
-                println!("Instr: DXYN"); //DRW Vx, Vy
+                //Dxyn - DRW Vx, Vy, n
+                //Disply n-byte sprite starting at memory location I at (Vx, Vy),
+                //set VF = collision. (http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#Dxyn)
+                println!("Instr: Dxyn");
 
                 //TODO: Implement
                 //TODO: DrawFlag
