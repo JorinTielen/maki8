@@ -4,6 +4,11 @@ use std;
 use ram::RAM;
 use self::rand::Rng;
 
+pub enum CpuState {
+    Running,
+    WaitForInput,
+}
+
 pub struct Cpu {
     i:  u16,    //Index
     pc: u16,    //Program counter
@@ -57,7 +62,13 @@ impl Cpu {
         if self.st > 0 { self.st -= 1; }
     }
 
-    pub fn step(&mut self) {
+    pub fn reset_keys(&mut self) {
+        for i in 0..self.key.len() {
+            self.key[i as usize] = false;
+        }
+    }
+
+    pub fn step(&mut self) -> CpuState {
         let ram = &self.ram;
 
         //Fetch opcode
@@ -203,6 +214,6 @@ impl Cpu {
             },
         }
 
-        //TODO: Update Timers
+        CpuState::Running
     }
 }

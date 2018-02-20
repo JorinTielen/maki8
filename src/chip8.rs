@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 use cpu::Cpu;
+use cpu::CpuState;
 
 pub struct Chip8 {
     cpu: Cpu
@@ -41,9 +42,24 @@ impl Chip8 {
 
             self.cpu.decrease_timers();
 
-            //TODO:
-            //draw flag
-            //input keys
+            
         }
+    }
+
+    pub fn step(&mut self) -> CpuState {
+        self.cpu.step()
+    
+
+        //TODO:
+        //draw flag
+        //input keys
+    }
+
+    pub fn decrease_timers(&mut self) {
+        self.cpu.decrease_timers();
+    }
+
+    pub fn reset_keys(&mut self) {
+        self.cpu.reset_keys();
     }
 }
