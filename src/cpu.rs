@@ -1,5 +1,8 @@
+extern crate rand;
+
 use std;
 use ram::RAM;
+use self::rand::Rng;
 
 pub struct Cpu {
     i:  u16,    //Index
@@ -99,9 +102,15 @@ impl Cpu {
                 //3xkk - SE Vx, kk
                 //Skip next instruction if Vx == kk.
                 println!("Instr: 3xkk");
-                println!("VX: {}, KK: {}", self.V[x], kk);
 
                 if self.V[x] == kk { self.pc += 2; }
+            },
+            0x4000 => {
+                //4xkk - SNE Vx, kk
+                //Skip next instruction if Vx != kk.
+                println!("Instr: 4xkk");
+
+                if self.V[x] != kk { self.pc += 2; }
             },
             0x6000 => {
                 //6xkk - LD Vx, kk
@@ -110,7 +119,7 @@ impl Cpu {
                 self.V[x] = kk;
             },
             0x7000 => {
-                //7xkk - ADD Vx, byte
+                //7xkk - ADD Vx, kk
                 //Adds value kk to value in register Vx.
                 println!("Instr: 7xkk");
                 self.V[x] = self.V[x].wrapping_add(kk);
@@ -121,6 +130,18 @@ impl Cpu {
                 println!("Instr: Annn");
                 self.i = nnn;
             },
+            0xC000 => {
+                //Cxkk - RND Vx, kk
+                //Adds a random value to kk, and stored in Vx.
+                println!("Instr: Cxkk");
+
+                let mut rng = rand::thread_rng();
+                let mut value = rng.gen::<u8>();
+
+                value.wrapping_add(kk); //Should this overflow? probably.
+
+                self.V[x] = value;
+            },
             0xD000 => {
                 //Dxyn - DRW Vx, Vy, n
                 //Disply n-byte sprite starting at memory location I at (Vx, Vy),
@@ -129,7 +150,14 @@ impl Cpu {
 
                 //TODO: Implement
                 //TODO: DrawFlag
-            }
+            },
+            0xF000 => {
+                //Fx07 - LD Vx, DT
+                //Set Vx = Delay Timer value.
+                println!("Instr: Fx07");
+
+                
+            },
 
             _ => {
                 println!("Unrecognized Instruction {:#X}! Exiting program...", instr);
