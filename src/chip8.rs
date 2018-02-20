@@ -16,10 +16,6 @@ impl Chip8 {
         }
     }
 
-    pub fn step(&mut self) {
-        self.cpu.step();
-    }
-
     pub fn load(&mut self, rom: File) {
         for (i, byte) in rom.bytes().enumerate() {
             let byte = match byte {
@@ -37,8 +33,13 @@ impl Chip8 {
     pub fn start(&mut self) {
         //for i in 0..140
         loop {
+            // Each loop is ~ 1/120th of a second
+            std::thread::sleep(std::time::Duration::from_millis(8));
+
             //Emulate one cycle
-            self.step();
+            self.cpu.step();
+
+            self.cpu.decrease_timers();
 
             //TODO:
             //draw flag

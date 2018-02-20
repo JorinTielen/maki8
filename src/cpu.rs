@@ -12,11 +12,16 @@ pub struct Cpu {
     V: [u8; 16], //V Registers
 
     stack: Vec<u16>, //Callstack
-    sp: u16,    //Stack pointer
+    sp: u16, //Stack pointer
 
-    pub ram: RAM,   //RAM
+    pub ram: RAM, //RAM
 
-    gfx: [u8; 64 * 32]
+    gfx: [u8; 64 * 32], //Display buffer
+
+    key: [bool; 16], //Keypad - false if not pressed, true if pressed
+
+    dt: u8, //Delay Timer
+    st: u8, //Sound Timer
 }
 
 impl Cpu {
@@ -35,11 +40,21 @@ impl Cpu {
 
             gfx: [0; 64 * 32],
 
+            key: [false; 16],
+
+            dt: 0, //Delay Timer
+            st: 0, //Sound Timer
+
             //TODO: 
             //Clear display
             //Clear regs
             //Load fontset
         }
+    }
+
+    pub fn decrease_timers(&mut self) {
+        if self.dt > 0 { self.dt -= 1; }
+        if self.st > 0 { self.st -= 1; }
     }
 
     pub fn step(&mut self) {
@@ -151,12 +166,35 @@ impl Cpu {
                 //TODO: Implement
                 //TODO: DrawFlag
             },
+            0xE000 => {
+                let vx = self.V[x] as usize;
+                match kk {
+                    0x009E => {
+                        //Ex9E - SKP Vx
+                        //Skips the next instruction if the key with the value of Vx is pressed.
+                        if vx < self.key.len() {
+                            if self.key[vx] == true { self.pc += 2; }
+                        }
+                    },
+                    0x00A1 => {
+                        //ExA1 - SKNP Vx
+                        //Skips the next instruction if the key with the value of Vx is not pressed.
+                        if vx < self.key.len() {
+                            if self.key[vx] == false { self.pc += 2; }
+                        }
+                    },
+                    _ => {
+                        //Shouldn't happen because there are only 2 known 0xE instructions.
+                        println!("Unknown 0xE instruction: {}! Exiting program...", instr);
+                        std::process::exit(1);
+                    }
+                }
+            }
             0xF000 => {
                 //Fx07 - LD Vx, DT
                 //Set Vx = Delay Timer value.
                 println!("Instr: Fx07");
-
-                
+                self.V[x] = self.dt;
             },
 
             _ => {
